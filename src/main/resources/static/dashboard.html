@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>TransitAssist | Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .stats {
+            width: 92%;
+            margin: 40px auto 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+        }
+
+        .stat-card h4 {
+            color: #718087;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #123b4a;
+        }
+
+        .pending {
+            color: #d88a00;
+        }
+
+        .assigned {
+            color: #168f83;
+        }
+
+        .available {
+            color: #237a4b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #e4f6f2;
+            color: #168f83;
+        }
+
+        @media(max-width: 800px) {
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar">
+
+    <div class="logo">
+        Transit<span>Assist</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="index.html">Home</a>
+
+        <a href="request.html">
+            Request Assistance
+        </a>
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="staff.html">
+            Staff
+        </a>
+
+        <a href="assignments.html">
+            Assignments
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<div class="page-header">
+
+    <h1>
+        Assistance Dashboard
+    </h1>
+
+    <p>
+        Monitor transit assistance requests and staff availability.
+    </p>
+
+</div>
+
+
+
+<!-- STATISTICS -->
+
+<div class="stats">
+
+
+    <div class="stat-card">
+
+        <h4>
+            TOTAL REQUESTS
+        </h4>
+
+        <div
+                class="stat-number"
+                id="totalRequests">
+            0
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h4>
+            PENDING REQUESTS
+        </h4>
+
+        <div
+                class="stat-number pending"
+                id="pendingRequests">
+            0
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h4>
+            ASSIGNED REQUESTS
+        </h4>
+
+        <div
+                class="stat-number assigned"
+                id="assignedRequests">
+            0
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h4>
+            AVAILABLE STAFF
+        </h4>
+
+        <div
+                class="stat-number available"
+                id="availableStaff">
+            0
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- REQUEST TABLE -->
+
+<div class="table-card">
+
+    <h2>
+        Recent Transit Requests
+    </h2>
+
+
+    <div
+            class="table-container"
+            id="requestsTable">
+
+        Loading requests...
+
+    </div>
+
+</div>
+
+
+
+<footer class="footer">
+
+    © 2026 TransitAssist |
+    Accessible Transportation Support
+
+</footer>
+
+
+
+<script>
+
+
+    async function loadDashboard() {
+
+        try {
+
+
+            /* GET REQUESTS */
+
+            const requestResponse =
+                await fetch("/api/requests");
+
+            const requests =
+                await requestResponse.json();
+
+
+            /* TOTAL */
+
+            document.getElementById("totalRequests")
+                .innerText = requests.length;
+
+
+            /* PENDING */
+
+            const pending =
+                requests.filter(
+                    request =>
+                        request.status === "Pending"
+                ).length;
+
+
+            document.getElementById("pendingRequests")
+                .innerText = pending;
+
+
+
+            /* REQUEST TABLE */
+
+            let html = `
+
+            <table>
+
+                <tr>
+
+                    <th>
+                        Request ID
+                    </th>
+
+                    <th>
+                        Assistance
+                    </th>
+
+                    <th>
+                        Source
+                    </th>
+
+                    <th>
+                        Destination
+                    </th>
+
+                    <th>
+                        Travel Date
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+        `;
+
+
+            requests.forEach(request => {
+
+                html += `
+
+                <tr>
+
+                    <td>
+                        ${request.requestId}
+                    </td>
+
+                    <td>
+                        ${request.assistanceType}
+                    </td>
+
+                    <td>
+                        ${request.source}
+                    </td>
+
+                    <td>
+                        ${request.destination}
+                    </td>
+
+                    <td>
+                        ${request.travelDate}
+                    </td>
+
+                    <td>
+
+                        <span class="status-badge">
+                            ${request.status}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            });
+
+
+            html += "</table>";
+
+
+            document.getElementById("requestsTable")
+                .innerHTML = html;
+
+
+
+            /* GET STAFF */
+
+            const staffResponse =
+                await fetch("/api/staff");
+
+            const staff =
+                await staffResponse.json();
+
+
+            const available =
+                staff.filter(
+                    person =>
+                        person.availability === true
+                ).length;
+
+
+            document.getElementById("availableStaff")
+                .innerText = available;
+
+
+
+            /* GET ASSIGNMENTS */
+
+            const assignmentResponse =
+                await fetch("/api/assignments");
+
+            const assignments =
+                await assignmentResponse.json();
+
+
+            document.getElementById("assignedRequests")
+                .innerText = assignments.length;
+
+
+        }
+
+        catch(error) {
+
+            document.getElementById("requestsTable")
+                .innerHTML =
+                "Unable to load dashboard data.";
+
+        }
+
+    }
+
+
+    loadDashboard();
+
+
+</script>
+
+
+</body>
+
+</html>

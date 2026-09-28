@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>TransitAssist | Staff</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .staff-stats {
+            width: 92%;
+            margin: 40px auto 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .staff-stat {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+        }
+
+        .staff-stat h4 {
+            color: #718087;
+            margin-bottom: 10px;
+        }
+
+        .staff-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #123b4a;
+        }
+
+        .available-number {
+            color: #168f83;
+        }
+
+        .unavailable-number {
+            color: #c65d5d;
+        }
+
+        .availability {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .yes {
+            background: #e2f6ef;
+            color: #168f83;
+        }
+
+        .no {
+            background: #fde8e8;
+            color: #c65d5d;
+        }
+
+        @media(max-width: 700px) {
+
+            .staff-stats {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar">
+
+    <div class="logo">
+        Transit<span>Assist</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="index.html">Home</a>
+
+        <a href="request.html">
+            Request Assistance
+        </a>
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="staff.html">
+            Staff
+        </a>
+
+        <a href="assignments.html">
+            Assignments
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<div class="page-header">
+
+    <h1>
+        Staff Management
+    </h1>
+
+    <p>
+        Manage transit assistance staff and their availability.
+    </p>
+
+</div>
+
+
+
+<div class="staff-stats">
+
+
+    <div class="staff-stat">
+
+        <h4>
+            TOTAL STAFF
+        </h4>
+
+        <div
+                class="staff-number"
+                id="totalStaff">
+
+            0
+
+        </div>
+
+    </div>
+
+
+
+    <div class="staff-stat">
+
+        <h4>
+            AVAILABLE STAFF
+        </h4>
+
+        <div
+                class="staff-number available-number"
+                id="availableStaff">
+
+            0
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<div class="table-card">
+
+    <h2>
+        Staff Details
+    </h2>
+
+
+    <div
+            class="table-container"
+            id="staffTable">
+
+        Loading staff...
+
+    </div>
+
+</div>
+
+
+
+<footer class="footer">
+
+    © 2026 TransitAssist |
+    Accessible Transportation Support
+
+</footer>
+
+
+
+<script>
+
+
+    async function loadStaff() {
+
+        try {
+
+            const response =
+                await fetch("/api/staff");
+
+            const staff =
+                await response.json();
+
+
+            /* TOTAL STAFF */
+
+            document.getElementById("totalStaff")
+                .innerText = staff.length;
+
+
+
+            /* AVAILABLE STAFF */
+
+            const available =
+                staff.filter(
+                    person =>
+                        person.availability === true
+                ).length;
+
+
+            document.getElementById("availableStaff")
+                .innerText = available;
+
+
+
+            /* TABLE */
+
+            let html = `
+
+            <table>
+
+                <tr>
+
+                    <th>
+                        Staff ID
+                    </th>
+
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Phone
+                    </th>
+
+                    <th>
+                        Staff Type
+                    </th>
+
+                    <th>
+                        Availability
+                    </th>
+
+                </tr>
+
+        `;
+
+
+            staff.forEach(person => {
+
+                html += `
+
+                <tr>
+
+                    <td>
+                        ${person.staffId}
+                    </td>
+
+                    <td>
+                        ${person.name}
+                    </td>
+
+                    <td>
+                        ${person.phone}
+                    </td>
+
+                    <td>
+                        ${person.staffType}
+                    </td>
+
+                    <td>
+
+                        ${
+                    person.availability
+
+                        ? '<span class="availability yes">Available</span>'
+
+                        : '<span class="availability no">Not Available</span>'
+                }
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            });
+
+
+            html += "</table>";
+
+
+            document.getElementById("staffTable")
+                .innerHTML = html;
+
+        }
+
+
+        catch(error) {
+
+            document.getElementById("staffTable")
+                .innerHTML =
+                "Unable to load staff data.";
+
+        }
+
+    }
+
+
+    loadStaff();
+
+
+</script>
+
+
+</body>
+
+</html>

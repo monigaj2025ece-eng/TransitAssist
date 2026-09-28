@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>TransitAssist | Assignments</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .assignment-stats {
+            width: 92%;
+            margin: 40px auto 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .assignment-stat {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+        }
+
+        .assignment-stat h4 {
+            color: #718087;
+            margin-bottom: 10px;
+        }
+
+        .assignment-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #168f83;
+        }
+
+        .assignment-status {
+            display: inline-block;
+            padding: 6px 13px;
+            border-radius: 20px;
+            background: #e2f6ef;
+            color: #168f83;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        @media(max-width: 700px) {
+
+            .assignment-stats {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar">
+
+    <div class="logo">
+        Transit<span>Assist</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="index.html">Home</a>
+
+        <a href="request.html">
+            Request Assistance
+        </a>
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="staff.html">
+            Staff
+        </a>
+
+        <a href="assignments.html">
+            Assignments
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<div class="page-header">
+
+    <h1>
+        Assignment Management
+    </h1>
+
+    <p>
+        Manage staff assignments for transit assistance requests.
+    </p>
+
+</div>
+
+
+
+<div class="assignment-stats">
+
+
+    <div class="assignment-stat">
+
+        <h4>
+            TOTAL ASSIGNMENTS
+        </h4>
+
+        <div
+                class="assignment-number"
+                id="totalAssignments">
+
+            0
+
+        </div>
+
+    </div>
+
+
+
+    <div class="assignment-stat">
+
+        <h4>
+            ACTIVE ASSIGNMENTS
+        </h4>
+
+        <div
+                class="assignment-number"
+                id="activeAssignments">
+
+            0
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<div class="table-card">
+
+    <h2>
+        Assignment Details
+    </h2>
+
+
+    <div
+            class="table-container"
+            id="assignmentTable">
+
+        Loading assignments...
+
+    </div>
+
+</div>
+
+
+
+<footer class="footer">
+
+    © 2026 TransitAssist |
+    Accessible Transportation Support
+
+</footer>
+
+
+
+<script>
+
+
+    async function loadAssignments() {
+
+        try {
+
+            const response =
+                await fetch("/api/assignments");
+
+            const assignments =
+                await response.json();
+
+
+
+            /* TOTAL */
+
+            document.getElementById("totalAssignments")
+                .innerText = assignments.length;
+
+
+
+            /* ACTIVE */
+
+            const active =
+                assignments.filter(
+                    assignment =>
+                        assignment.assignmentStatus === "Assigned"
+                ).length;
+
+
+            document.getElementById("activeAssignments")
+                .innerText = active;
+
+
+
+            /* TABLE */
+
+            let html = `
+
+            <table>
+
+                <tr>
+
+                    <th>
+                        Assignment ID
+                    </th>
+
+                    <th>
+                        Request ID
+                    </th>
+
+                    <th>
+                        Staff Name
+                    </th>
+
+                    <th>
+                        Assigned Time
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+        `;
+
+
+            assignments.forEach(assignment => {
+
+
+                const requestId =
+                    assignment.request
+                        ? assignment.request.requestId
+                        : "-";
+
+
+                const staffName =
+                    assignment.staff
+                        ? assignment.staff.name
+                        : "-";
+
+
+                html += `
+
+                <tr>
+
+                    <td>
+                        ${assignment.assignmentId}
+                    </td>
+
+                    <td>
+                        ${requestId}
+                    </td>
+
+                    <td>
+                        ${staffName}
+                    </td>
+
+                    <td>
+                        ${assignment.assignedTime}
+                    </td>
+
+                    <td>
+
+                        <span class="assignment-status">
+
+                            ${assignment.assignmentStatus}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            });
+
+
+            html += "</table>";
+
+
+            document.getElementById("assignmentTable")
+                .innerHTML = html;
+
+        }
+
+
+        catch(error) {
+
+            document.getElementById("assignmentTable")
+                .innerHTML =
+                "Unable to load assignment data.";
+
+        }
+
+    }
+
+
+    loadAssignments();
+
+
+</script>
+
+
+</body>
+
+</html>

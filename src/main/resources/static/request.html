@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>TransitAssist | Request Assistance</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .form-card {
+            width: 86%;
+            margin: 45px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        }
+
+        .form-card h2 {
+            color: #123b4a;
+            margin-bottom: 10px;
+        }
+
+        .form-card p {
+            color: #718087;
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #123b4a;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 14px;
+            border: 1px solid #ccd7da;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 28px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #123b4a;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background: #168f83;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .success {
+            display: block !important;
+            background: #e2f6ef;
+            color: #168f83;
+        }
+
+        @media(max-width: 700px) {
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-card {
+                width: 78%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar">
+
+    <div class="logo">
+        Transit<span>Assist</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="index.html">Home</a>
+
+        <a href="user.html">
+            User Registration
+        </a>
+
+        <a href="request.html">
+            Request Assistance
+        </a>
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+        <a href="staff.html">
+            Staff
+        </a>
+
+        <a href="assignments.html">
+            Assignments
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<div class="page-header">
+
+    <h1>
+        Request Transit Assistance
+    </h1>
+
+    <p>
+        Submit a request for safe and accessible transportation support.
+    </p>
+
+</div>
+
+
+
+<div class="form-card">
+
+    <h2>
+        Assistance Request
+    </h2>
+
+    <p>
+        Select the registered passenger and enter journey details.
+    </p>
+
+
+    <form id="requestForm">
+
+
+        <div class="form-grid">
+
+
+            <!-- USER -->
+
+            <div class="form-group">
+
+                <label>
+                    Passenger
+                </label>
+
+                <select
+                        id="userId"
+                        required>
+
+                    <option value="">
+                        Loading users...
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- ASSISTANCE -->
+
+            <div class="form-group">
+
+                <label>
+                    Assistance Type
+                </label>
+
+                <select
+                        id="assistanceType"
+                        required>
+
+                    <option value="">
+                        Select assistance
+                    </option>
+
+                    <option>
+                        Wheelchair Assistance
+                    </option>
+
+                    <option>
+                        Visual Assistance
+                    </option>
+
+                    <option>
+                        Hearing Assistance
+                    </option>
+
+                    <option>
+                        Elderly Assistance
+                    </option>
+
+                    <option>
+                        General Assistance
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- SOURCE -->
+
+            <div class="form-group">
+
+                <label>
+                    Source
+                </label>
+
+                <input
+                        type="text"
+                        id="source"
+                        placeholder="Enter pickup location"
+                        required>
+
+            </div>
+
+
+
+            <!-- DESTINATION -->
+
+            <div class="form-group">
+
+                <label>
+                    Destination
+                </label>
+
+                <input
+                        type="text"
+                        id="destination"
+                        placeholder="Enter destination"
+                        required>
+
+            </div>
+
+
+
+            <!-- DATE -->
+
+            <div class="form-group">
+
+                <label>
+                    Travel Date
+                </label>
+
+                <input
+                        type="date"
+                        id="travelDate"
+                        required>
+
+            </div>
+
+
+        </div>
+
+
+
+        <button
+                type="submit"
+                class="submit-btn">
+
+            REQUEST ASSISTANCE
+
+        </button>
+
+
+    </form>
+
+
+    <div id="message"></div>
+
+
+</div>
+
+
+
+<footer class="footer">
+
+    © 2026 TransitAssist |
+    Accessible Transportation Support
+
+</footer>
+
+
+
+<script>
+
+
+    /* LOAD USERS */
+
+    async function loadUsers() {
+
+        try {
+
+            const response =
+                await fetch("/api/users");
+
+            const users =
+                await response.json();
+
+
+            const userSelect =
+                document.getElementById("userId");
+
+
+            userSelect.innerHTML =
+                '<option value="">Select passenger</option>';
+
+
+            users.forEach(user => {
+
+                const option =
+                    document.createElement("option");
+
+
+                option.value =
+                    user.userId;
+
+
+                option.textContent =
+                    user.name +
+                    " - " +
+                    user.email;
+
+
+                userSelect.appendChild(option);
+
+            });
+
+        }
+
+        catch(error) {
+
+            document.getElementById("userId")
+                .innerHTML =
+                '<option value="">Unable to load users</option>';
+
+        }
+
+    }
+
+
+    loadUsers();
+
+
+
+    /* SUBMIT REQUEST */
+
+    document.getElementById("requestForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const requestData = {
+
+                assistanceType:
+                document.getElementById("assistanceType").value,
+
+                source:
+                document.getElementById("source").value,
+
+                destination:
+                document.getElementById("destination").value,
+
+                travelDate:
+                document.getElementById("travelDate").value,
+
+                status:
+                    "Pending",
+
+                user: {
+
+                    userId:
+                        Number(
+                            document.getElementById("userId").value
+                        )
+
+                }
+
+            };
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/requests",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(requestData)
+
+                        }
+                    );
+
+
+                if(response.ok) {
+
+                    const request =
+                        await response.json();
+
+
+                    const message =
+                        document.getElementById("message");
+
+
+                    message.innerText =
+                        "Assistance request submitted successfully! Request ID: "
+                        + request.requestId;
+
+
+                    message.className =
+                        "success";
+
+
+                    document.getElementById("requestForm")
+                        .reset();
+
+                }
+
+                else {
+
+                    alert(
+                        "Unable to submit request."
+                    );
+
+                }
+
+            }
+
+            catch(error) {
+
+                alert(
+                    "Server connection error."
+                );
+
+            }
+
+        });
+
+
+</script>
+
+
+</body>
+
+</html>
